@@ -79,6 +79,7 @@ const Map<String, Map<String, String>> translations = {
     'privacy_mask': '隐私遮罩模式',
     'privacy_mask_desc': '开启后，列表中的号码中间将被星号隐藏',
     'recycle_bin': '回收站',
+    'check_update': '检查更新',
     'restore_item': '恢复',
     'permanent_delete': '永久删除',
     'empty_recycle_bin': '回收站为空',

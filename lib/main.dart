@@ -12,6 +12,7 @@ import 'settings_page.dart';
 import 'l10n.dart';
 import 'notification_manager.dart';
 import 'keep_alive_page.dart';
+import 'updater.dart';
 
 final SettingsManager globalSettings = SettingsManager();
 
@@ -151,6 +152,8 @@ class _HomePageState extends State<HomePage> {
       if (globalSettings.isFirstLaunch) {
         NotificationManager().showWelcomeNotification();
       }
+      // Check for updates silently on startup
+      UpdateManager.checkAndUpdate(context);
     });
   }
 
@@ -305,6 +308,15 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 );
+              },
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+              leading: Icon(Icons.update_rounded, color: Theme.of(context).colorScheme.onSurface),
+              title: Text(tr(context, 'check_update') ?? '检查更新', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+              onTap: () {
+                Navigator.pop(context);
+                UpdateManager.checkAndUpdate(context, showLoading: true, isManualCheck: true);
               },
             ),
             ListTile(
