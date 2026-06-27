@@ -294,7 +294,7 @@ class SettingsManager extends ChangeNotifier {
     _biometricEnabled = prefs.getBool('biometricEnabled') ?? false;
     _appLockPin = prefs.getString('appLockPin') ?? '';
 
-    webDavUrl = prefs.getString('webDavUrl') ?? '';
+    webDavUrl = prefs.getString('webdav_url') ?? '';
     webDavUser = prefs.getString('webdav_user') ?? '';
     webDavPass = prefs.getString('webdav_pass') ?? '';
     _webDavAutoSync = prefs.getBool('webdav_autosync') ?? false;
