@@ -1,6 +1,7 @@
 name: Build and Release APK
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*' # Trigger on tags matching v*, i.e. v1.0, v20.15.10
