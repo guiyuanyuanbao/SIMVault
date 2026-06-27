@@ -123,4 +123,4 @@ app.*.symbols
 .vscode/
 *.iml
 .DS_Store
-Thumbs.db
+Thumbs.dbkeystore_base64.txt
