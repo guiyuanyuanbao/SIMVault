@@ -13,6 +13,8 @@ import 'l10n.dart';
 import 'notification_manager.dart';
 import 'keep_alive_page.dart';
 import 'updater.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final SettingsManager globalSettings = SettingsManager();
 
@@ -132,14 +134,23 @@ class _HomePageState extends State<HomePage> {
   String _searchQuery = '';
   SortMode _sortMode = SortMode.expiration;
   Timer? _timer;
+  String _appVersion = '';
 
   void _onGlobalSettingsChanged() {
     if (mounted) setState(() {});
   }
 
+  Future<void> _loadAppVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _appVersion = 'v${info.version}';
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadAppVersion();
     globalSettings.addListener(_onGlobalSettingsChanged);
     _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
       setState(() {});
@@ -334,13 +345,41 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             const Spacer(),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Text(
-                tr(context, 'version'),
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4), fontSize: 13, fontWeight: FontWeight.w600),
+            InkWell(
+              onTap: () async {
+                final Uri url = Uri.parse('https://github.com/guiyuanyuanbao/SIMVault');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.code_rounded, size: 20, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'GitHub',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      _appVersion.isEmpty ? 'SIMVault' : 'SIMVault $_appVersion',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            )
+            ),
+            const SizedBox(height: 8),
           ],
         ),
       ),
