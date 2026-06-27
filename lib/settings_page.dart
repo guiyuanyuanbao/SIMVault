@@ -161,7 +161,7 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
       
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('phone_data', response.body);
+        await prefs.setString('phone_data', utf8.decode(response.bodyBytes));
         
         // Try downloading recycle bin as well
         try {
@@ -170,7 +170,7 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
             headers: {'Authorization': basicAuth},
           );
           if (delResponse.statusCode >= 200 && delResponse.statusCode < 300) {
-            await prefs.setString('deleted_phone_data', delResponse.body);
+            await prefs.setString('deleted_phone_data', utf8.decode(delResponse.bodyBytes));
           }
         } catch (e) {
           debugPrint('Failed to download recycle bin: $e');
