@@ -76,11 +76,16 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
       
       final prefs = await SharedPreferences.getInstance();
       final data = prefs.getString('phone_data') ?? '[]';
+      final deletedData = prefs.getString('deleted_phone_data') ?? '[]';
       
       final url = _urlController.text.endsWith('/') 
           ? '${_urlController.text}simvault_data.json' 
           : '${_urlController.text}/simvault_data.json';
           
+      final deletedUrl = _urlController.text.endsWith('/') 
+          ? '${_urlController.text}simvault_deleted_data.json' 
+          : '${_urlController.text}/simvault_deleted_data.json';
+
       final basicAuth = 'Basic ${base64Encode(utf8.encode('${_userController.text}:${_passController.text}'))}';
       
       final response = await http.put(
@@ -88,6 +93,17 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
         headers: {'Authorization': basicAuth, 'Content-Type': 'application/json'},
         body: data,
       );
+      
+      // Upload recycle bin silently, ignore errors as it's not strictly critical
+      try {
+        await http.put(
+          Uri.parse(deletedUrl),
+          headers: {'Authorization': basicAuth, 'Content-Type': 'application/json'},
+          body: deletedData,
+        );
+      } catch (e) {
+        debugPrint('Recycle bin upload failed: $e');
+      }
       
       if (response.statusCode >= 200 && response.statusCode < 300) {
         if (!mounted) return;
@@ -132,6 +148,10 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
           ? '${_urlController.text}simvault_data.json' 
           : '${_urlController.text}/simvault_data.json';
           
+      final deletedUrl = _urlController.text.endsWith('/') 
+          ? '${_urlController.text}simvault_deleted_data.json' 
+          : '${_urlController.text}/simvault_deleted_data.json';
+
       final basicAuth = 'Basic ${base64Encode(utf8.encode('${_userController.text}:${_passController.text}'))}';
       
       final response = await http.get(
@@ -142,6 +162,20 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('phone_data', response.body);
+        
+        // Try downloading recycle bin as well
+        try {
+          final delResponse = await http.get(
+            Uri.parse(deletedUrl),
+            headers: {'Authorization': basicAuth},
+          );
+          if (delResponse.statusCode >= 200 && delResponse.statusCode < 300) {
+            await prefs.setString('deleted_phone_data', delResponse.body);
+          }
+        } catch (e) {
+          debugPrint('Failed to download recycle bin: $e');
+        }
+
         await widget.phoneManager.load();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

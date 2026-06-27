@@ -404,6 +404,9 @@ class SettingsManager extends ChangeNotifier {
       final url = webDavUrl.endsWith('/') 
           ? '${webDavUrl}simvault_data.json' 
           : '$webDavUrl/simvault_data.json';
+      final deletedUrl = webDavUrl.endsWith('/') 
+          ? '${webDavUrl}simvault_deleted_data.json' 
+          : '$webDavUrl/simvault_deleted_data.json';
           
       final basicAuth = 'Basic ${base64Encode(utf8.encode('$webDavUser:$webDavPass'))}';
       
@@ -411,6 +414,13 @@ class SettingsManager extends ChangeNotifier {
         Uri.parse(url),
         headers: {'Authorization': basicAuth, 'Content-Type': 'application/json'},
         body: data,
+      );
+
+      final deletedData = prefs.getString('deleted_phone_data') ?? '[]';
+      await http.put(
+        Uri.parse(deletedUrl),
+        headers: {'Authorization': basicAuth, 'Content-Type': 'application/json'},
+        body: deletedData,
       );
     } catch (e) {
       debugPrint('Auto sync failed: $e');
